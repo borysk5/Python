@@ -1,0 +1,55 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<script>
+function autom()
+{
+	if (document.getElementById('autm').checked)
+	{
+	document.getElementById('manual').value = '';
+	}
+}
+function dochange()
+{
+	if (document.getElementById('manual').value!='')
+	{
+	document.getElementById('autm').checked = false;
+	}
+}
+</script>
+</head>
+<body>
+<form enctype="multipart/form-data" method='post'><input accept='.txt' name='myfile' type='file' id="pattern" multiple></input>
+<input type="checkbox" id="dmy" name="default" value="1" >Choose a default file
+<br>Line separating character?
+<br><input type="text" style="width:8px" oninput="dochange()" id="manual" name="type" maxlength="1"><br/>
+ <input type="checkbox" id="autm" onclick="autom()" name="automat" value="1" checked>Detect automatically
+<br>Date format?<br>
+ <input type="radio" id="dmy" name="dateformat" value="dmy" {{checked[0]}}>DMY
+ <br><input type="radio" id="dmy" name="dateformat" value="ymd" {{checked[1]}}>YMD
+ <br><input type="radio" id="dmy" name="dateformat" value="mdy" {{checked[2]}}>MDY
+ <br><input type="radio" id="dmy" name="dateformat" value="det" {{checked[3]}}>Detect automatically
+<br>Methods of actualizing?<br>
+<input type="checkbox" id="dmy" name="appending" value="1"  {{checked1[0]}}>Appending
+ <input type="checkbox" id="dmy" name="updating" value="1"  {{checked1[1]}}>Updating
+<br><input type='submit' value='submit' id='submit' /></form>
+<br>
+Time passed: {{passed}}
+<br>
+<table border="1">
+  <tr>
+    <th>Series ID</th>
+    <th>Date</th>
+    <th>Number</th>
+  </tr>
+{%for i in legion%}
+	{%for j in i.legions%}
+		<tr>
+   		<td>{{i.series}}</td><td>{{j.year}}.{{j.month}}.{{j.day}}</td><td>{{j.value}}</td>
+		</tr>
+	{%endfor%}
+{%endfor%}
+  </table>
+</body>
+</html>
