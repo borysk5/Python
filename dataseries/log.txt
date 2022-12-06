@@ -136,3 +136,44 @@ Data mismatch. New date 2024.12.3 is not chronological
 Data mismatch. New date 2016.12.3 is not chronological
 Added new line: SYM5, 2019.12.3, 265
 Added new line: SYM6, 2027.10.4, 298
+2022-10-13 13:18:21.891371
+2022-10-13 13:18:26.655447
+In SYM1 2024.12.3 replaced 665 with new value: 665
+In SYM5 2019.12.3 replaced 265 with new value: 265
+In SYM6 2027.10.4 replaced 298 with new value: 298
+2022-10-13 13:29:11.396269
+Data mismatch. New date 2024.12.3 is not chronological
+In SYM1 2024.12.3 replaced 665 with new value: 665
+Data mismatch. New date 2016.12.3 is not chronological
+Added new line: SYM5, 2019.12.3, 265
+In SYM5 2019.12.3 replaced 265 with new value: 265
+Added new line: SYM6, 2027.10.4, 298
+In SYM6 2027.10.4 replaced 298 with new value: 298
+2022-10-14 17:25:43.447677
+2022-10-14 17:26:00.134480
+2022-10-14 17:26:20.588043
+Data mismatch. New date 2024.12.3 is not chronological
+Data mismatch. New date 2016.12.3 is not chronological
+Added new line: SYM5, 2019.12.3, 265
+Added new line: SYM6, 2027.10.4, 298
+2022-11-13 18:24:28.999764
+2022-11-14 19:42:43.314978
+2022-11-15 09:24:52.009295
+2022-12-04 12:11:52.789842
+2022-12-04 12:16:32.936194
+2022-12-04 12:18:19.843529
+2022-12-04 12:19:04.215807
+2022-12-04 12:33:42.989457
+2022-12-04 12:33:51.609324
+2022-12-04 12:33:54.336691
+2022-12-04 12:34:42.485240
+2022-12-04 12:36:20.759465
+2022-12-04 12:36:48.862858
+2022-12-04 14:49:15.643134
+2022-12-04 17:11:36.099255
+2022-12-04 17:13:05.631432
+2022-12-04 17:41:44.691839
+2022-12-04 17:44:05.620788
+2022-12-04 17:46:31.017812
+2022-12-04 17:47:57.314214
+2022-12-06 14:38:00.884963
