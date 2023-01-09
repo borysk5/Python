@@ -1,8 +1,7 @@
-
 <!DOCTYPE html>
 <html>
 <head>
-<script>
+    <script>
 function autom()
 {
 	if (document.getElementById('autm').checked)
@@ -18,36 +17,90 @@ function dochange()
 	}
 }
 </script>
+  <title>Data Series Website</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f1f1f1;
+      color: #333;
+      padding: 20px;
+      margin: 0;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      color: #222;
+      margin: 10px 0;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-control {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width: 100%;
+    }
+
+    input[type="submit"] {
+      background-color: #333;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-<form enctype="multipart/form-data" method='post'><input accept='.txt' name='myfile' type='file' id="pattern" multiple></input>
-<input type="checkbox" id="dmy" name="default" value="1" >Choose a default file
-<br>Line separating character?
-<br><input type="text" style="width:8px" oninput="dochange()" id="manual" name="type" maxlength="1">
-<br>Date format?<br>
- <input type="radio" id="dmy" name="dateformat" value="dmy" {{checked[0]}}>DMY
- <br><input type="radio" id="dmy" name="dateformat" value="ymd" {{checked[1]}}>YMD
- <br><input type="radio" id="dmy" name="dateformat" value="mdy" {{checked[2]}}>MDY
-<br>Methods of actualizing?<br>
-<input type="checkbox" id="dmy" name="appending" value="1"  {{checked1[0]}}>Appending
- <input type="checkbox" id="dmy" name="updating" value="1"  {{checked1[1]}}>Updating
-<br><input type='submit' value='submit' id='submit' /></form>
+  <div class="container">
+    <h1>My Website</h1>
+    <form enctype="multipart/form-data" method='post'>
+      <div class="form-group">
+        <label for="pattern">Select file:</label>
+        <input accept='.csv' name='myfile' type='file' id="pattern" multiple></input>
+        <br>
+        <input type="checkbox" id="dmy" name="default" value="1"> Choose a default file
+      </div>
+      <div class="form-group">
+        <label for="manual">Line separating character:</label>
+        <br>
+        <input type="text" style="width:8px" id="manual" name="type" maxlength="1">
+      </div>
+      <div class="form-group">
+        <h3>Methods of actualizing:</h3>
+        <input type="radio" id="oth" name="types" value="sql" {{checkedtypes[0]}}> SQL Database
+        <br>
+        <input type="radio" id="oth" name="types" value="man" {{checkedtypes[1]}}> Manual
+        <br>
+        <input type="radio" id="oth" name="types" value="pan" {{checkedtypes[2]}}> Pandas
+      </div>
+      <div class="form-group">
+        <h3>Date format:</h3>
+        <input type="radio" id="dmy" name="dateformat" value="dmy" {{checked[0]}}> DMY
+        <br>
+        <input type="radio" id="dmy" name="dateformat" value="ymd" {{checked[1]}}> YMD
+        <br>
+        <input type="radio" id="dmy" name="dateformat" value="mdy" {{checked[2]}}> MDY
+      </div>
+      <div class="form-group">
+        <h3>Modes of actualizing:</h3>
+        <input type="checkbox" id="dmy" name="appending" value="1" {{checked1[0]}}> Appending
+        <input type="checkbox" id="dmy" name="updating" value="1" {{checked1[1]}}> Updating
+      </div>
+  <input type='submit' value='submit' id='submit' />
+</form>
 <br>
-Time passed: {{passed}}
-<br>
-<table border="1">
-  <tr>
-    <th>Series ID</th>
-    <th>Date</th>
-    <th>Number</th>
-  </tr>
-{%for i in legion%}
-	{%for j in i.legions%}
-		<tr>
-   		<td>{{i.series}}</td><td>{{j.print()}}</td><td>{{j.value}}</td>
-		</tr>
-	{%endfor%}
-{%endfor%}
-  </table>
+{% if passed > 0 %}
+<h2>Time passed: {{passed}} s</h2>
+{% endif %}
+</div>
 </body>
 </html>

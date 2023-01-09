@@ -1,20 +1,20 @@
-from flask import Flask, request, render_template
+from flask import Flask
 from datetime import datetime
 from os import listdir
 from os.path import isfile, join, isdir
 from flask_sqlalchemy import SQLAlchemy
-import sys
-import hashlib
-import time
 import csv
+import pandas as pd
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
 
 separator="."
 dateformat='ymd'
-appending=bool(0)
-updating=bool(0)
+
+serieslist = dict()
+pandasframe = pd.DataFrame()
+pandaseries = pd.DataFrame()
 
 SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
     username="Borysk5",
@@ -28,14 +28,14 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
 
-class LegionDB(db.Model):
+class DataseriesDB(db.Model):
     __tablename__ = "legion"
     id = db.Column(db.Integer, primary_key=True)
     series = db.Column(db.String(4096))
     URLpath = db.Column(db.String(4096))
-    legions = db.relationship("LegionsDB",backref="legion")
+    legions = db.relationship("DataentryDB",backref="legion")
 
-class LegionsDB(db.Model):
+class DataentryDB(db.Model):
     __tablename__ = "legions"
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime)
@@ -46,47 +46,35 @@ class LegionsDB(db.Model):
     def print(self):
         return self.date.strftime("%Y.%m.%d")
 
-class Legion:
-	def __init__(self, date, number):
-		global separator
-	    #date_string = date
-		g = date.strip()
-		date_string = date
-		print(g)
-		x = g.split('.')
-		assert(len(x)==3)
-		global dateformat
-		if(dateformat == 'dmy'):
-			self.date=datetime.strptime(date_string, "%d"+separator+"%m"+separator+"%Y")
-		elif(dateformat == 'ymd'):
-			self.date=datetime.strptime(date_string, "%Y"+separator+"%m"+separator+"%d")
-		elif(dateformat == 'mdy'):
-			self.date=datetime.strptime(date_string, "%m"+separator+"%d"+separator+"%Y")
+def DateTime(date):
+    global separator
+    date_string =date.strip()
+    x = date.split('.')
+    assert(len(x)==3)
+    global dateformat
+    if(dateformat == 'dmy'):
+        z = datetime.strptime(date_string, "%d"+separator+"%m"+separator+"%Y")
+        return z
+    elif(dateformat == 'ymd'):
+        return datetime.strptime(date_string, "%Y"+separator+"%m"+separator+"%d")
+    elif(dateformat == 'mdy'):
+        return datetime.strptime(date_string, "%m"+separator+"%d"+separator+"%Y")
 
-		self.number = number
-
-def splitline(line):
-        g = line.split(separator)
-        if(len(g)==3):
-                for i in range(3):
-                    g[i] = g[i].strip()
-                if len(g[0])*len(g[1])*len(g[2]) > 0: return g
-        return list()
 
 def readfromfolder(path):
 	onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
 	for i in onlyfiles:
-		if i!="log.txt" and i[-4:]==".csv":
+		if i.endswith(".csv"):
 		    with open(join(path,i)) as csv_file:
 		        csv_reader = csv.reader(csv_file, delimiter=',')
 		        bdb = []
 		        l = ''
 		        for row in csv_reader:
-		            l = row[0]
-		            legion = Legion(row[1],row[2])
-		            series = LegionsDB(date=legion.date,value=row[2])
-		            bdb.append(series)
-		        seria = LegionDB(series=l,URLpath=join(path,i))
+		            if(len(row))==3:
+		                l = row[0]
+		                series = DataentryDB(date=DateTime(row[1]),value=row[2])
+		                bdb.append(series)
+		        seria = DataseriesDB(series=l,URLpath=join(path,i))
 		        seria.legions = bdb
 		        db.session.add(seria)
 		        db.session.commit()
@@ -94,13 +82,74 @@ def readfromfolder(path):
 	for j in onlyfolders:
 		readfromfolder(join(path,j))
 
+
+def readfromfolderpandas(path):
+	onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
+	global pandasframe
+	global pandaseries
+	for i in onlyfiles:
+		if i.endswith(".csv"):
+		    df = pd.read_csv(join(path,i),header=None)
+		    df.columns = ['Series', 'Date', 'Value']
+		    df.set_index('Date')
+		    pandasframe = pd.concat([pandasframe,df])
+		    nazwa = df['Series'].iloc[0]
+		    ch = pd.DataFrame(data=[[nazwa, join(path,i)]])
+		    ch.columns=['Series','URL']
+		    pandaseries = pd.concat([pandaseries,ch])
+	onlyfolders = [f for f in listdir(path) if isdir(join(path, f))]
+	for j in onlyfolders:
+		readfromfolderpandas(join(path,j))
+	return [pandaseries,pandasframe]
+
+def readfromfolderog(path):
+	onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
+	for i in onlyfiles:
+		if i.endswith(".csv"):
+		    with open(join(path,i)) as csv_file:
+		        csv_reader = csv.reader(csv_file, delimiter=',')
+		        bdb = []
+		        l = ''
+		        for row in csv_reader:
+		            if(len(row))==3:
+		                l = row[0]
+		                entry = Dataentry(date=DateTime(row[1]),value=row[2])
+		                bdb.append(entry)
+		        seria = Dataseries(legions=bdb,id=l,URLpath=join(path,i))
+		        global serieslist
+		        serieslist[l]=seria
+	onlyfolders = [f for f in listdir(path) if isdir(join(path, f))]
+	for j in onlyfolders:
+		readfromfolderog(join(path,j))
+
 def datascrepancy(x, y):
 	x=int(x)
 	y=int(y)
 	if(abs(x-y)/x < 0.2): return bool(0)
 	else: return bool(1)
 
-class Legions:
-  def __init__(self, legions, path):
+def savetofiles(zxh):
+    for i in zxh:
+        g = open(i.URLpath, "w")
+        for j in i.legions[:-1]:
+            g.write(i.series+','+j.print()+','+str(j.value)+'\n')
+        g.write(i.series+','+i.legions[-1].print()+','+str(i.legions[-1].value))
+        g.close()
+
+def savetofilespandas(arg,arg1):
+    for index, x in arg.iterrows():
+        temp = arg1.loc[arg1['Series']==x['Series']]
+        temp.to_csv(x['URL'],header=False,index=False)
+
+class Dataseries:
+  def __init__(self, id, legions, URLpath):
+    self.series = id
     self.legions = legions
-    self.path = path
+    self.URLpath = URLpath
+
+class Dataentry:
+  def __init__(self, date, value):
+    self.date = date
+    self.value = value
+  def print(self):
+    return self.date.strftime("%Y.%m.%d")
