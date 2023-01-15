@@ -5,6 +5,7 @@ from os.path import isfile, join, isdir
 from flask_sqlalchemy import SQLAlchemy
 import csv
 import pandas as pd
+from multiprocessing import Pool
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
@@ -13,7 +14,6 @@ separator="."
 dateformat='ymd'
 
 serieslist = dict()
-pandasframe = pd.DataFrame()
 pandaseries = pd.DataFrame()
 
 SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
@@ -33,7 +33,7 @@ class DataseriesDB(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     series = db.Column(db.String(4096))
     URLpath = db.Column(db.String(4096))
-    legions = db.relationship("DataentryDB",backref="legion")
+    legions = db.relationship("DataentryDB",backref="legion",lazy='subquery')
 
 class DataentryDB(db.Model):
     __tablename__ = "legions"
@@ -85,22 +85,20 @@ def readfromfolder(path):
 
 def readfromfolderpandas(path):
 	onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
-	global pandasframe
+	pandasframe = pd.DataFrame(columns = ['Series', 'Date', 'Value'])
+	#pandasframe.set_index('Date')
 	global pandaseries
 	for i in onlyfiles:
 		if i.endswith(".csv"):
-		    df = pd.read_csv(join(path,i),header=None)
+		    df = pd.read_csv(join(path,i),header=None,index_col=False)
 		    df.columns = ['Series', 'Date', 'Value']
-		    df.set_index('Date')
 		    pandasframe = pd.concat([pandasframe,df])
 		    nazwa = df['Series'].iloc[0]
-		    ch = pd.DataFrame(data=[[nazwa, join(path,i)]])
-		    ch.columns=['Series','URL']
-		    pandaseries = pd.concat([pandaseries,ch])
+		    serieslist[nazwa]=join(path,i)
 	onlyfolders = [f for f in listdir(path) if isdir(join(path, f))]
 	for j in onlyfolders:
 		readfromfolderpandas(join(path,j))
-	return [pandaseries,pandasframe]
+	return pandasframe
 
 def readfromfolderog(path):
 	onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
@@ -128,18 +126,26 @@ def datascrepancy(x, y):
 	if(abs(x-y)/x < 0.2): return bool(0)
 	else: return bool(1)
 
-def savetofiles(zxh):
-    for i in zxh:
-        g = open(i.URLpath, "w")
-        for j in i.legions[:-1]:
-            g.write(i.series+','+j.print()+','+str(j.value)+'\n')
-        g.write(i.series+','+i.legions[-1].print()+','+str(i.legions[-1].value))
-        g.close()
+def saveline(i):
+    g = open(i.URLpath, "w")
+    g.write(i.series+','+i.legions[0].print()+','+str(i.legions[0].value))
+    if(len(i.legions)>1):
+        for j in i.legions[1:]:
+            g.write('\n'+i.series+','+j.print()+','+str(j.value))
+    g.close()
 
-def savetofilespandas(arg,arg1):
-    for index, x in arg.iterrows():
-        temp = arg1.loc[arg1['Series']==x['Series']]
-        temp.to_csv(x['URL'],header=False,index=False)
+def savetofiles(zxh):
+    with Pool() as pool:
+        pool.map(saveline,zxh)
+
+def savelinepandas(x,url):
+        x.to_csv(url,header=False,index=False)
+
+def savetofilespandas(arg1):
+    dfs = arg1.groupby('Series')
+    for x in dfs:
+        url = serieslist[x[0]]
+        savelinepandas(x[1],url)
 
 class Dataseries:
   def __init__(self, id, legions, URLpath):

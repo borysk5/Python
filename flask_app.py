@@ -1,9 +1,9 @@
 from flask import request, render_template
 from datetime import datetime
 from os.path import join
+import io
 from logic import csv, pd, DataseriesDB, DataentryDB, readfromfolderpandas, savetofilespandas, savetofiles, Dataentry, Dataseries, app, db, datascrepancy, readfromfolder, DateTime, readfromfolderog, serieslist
 import time
-
 
 @app.route("/log")
 def log():
@@ -75,100 +75,106 @@ def main():
         readfromfolderog(mypath)
     elif(checktypes=='pan'):
         xj = readfromfolderpandas(mypath)
-        pandaseries = xj[0]
-        pandaentries = xj[1]
+        pandaentries = xj
 
     files = []
     if(args.get("default")):
         files.append(open("mysite/insert.csv"))
     elif(len(request.files)>0):
-        files = request.files.getlist('myfile')
-
+        files = request.files['myfile']
+    hjk = dict()
     g = open("mysite/dataseries/log.txt", "a")
     g.write('\n'+str(datetime.now()))
+    global start
     start = time.time()
-    print(start)
     for f in files:
-        print("tresc")
-        print(f.name)
-        if f.name.endswith(".csv"):
-            csv_reader = csv.reader(f, delimiter=',')
-            for x in csv_reader:
-                if(len(x)!=3):
-                    g.write('\n'+'Data mismatch. Wrong format of data series in line: "'+x+'"');
-                else:
-                    x[1] = x[1].strip()
-                    x[0] = x[0].strip()
-                    x[2] = x[2].strip()
-                    if(appending and checktypes=='sql'):
-                        new_vc = DataentryDB(date=DateTime(x[1]),value=x[2])
+        if(args.get("default")):
+            csv_reader = csv.reader(f,delimiter=',')
+        else:
+            csv_reader = csv.reader(io.StringIO(f.decode('utf-8')), delimiter=',')
+        for x in csv_reader:
+            if(len(x)!=3):
+                g.write('\n'+'Data mismatch. Wrong format of data series in line: "'+x+'"');
+            else:
+                x[1] = x[1].strip()
+                x[0] = x[0].strip()
+                x[2] = x[2].strip()
+                if(appending and checktypes=='sql'):
+                    new_vc = DataentryDB(date=DateTime(x[1]),value=x[2])
+                    if x[0] in hjk.keys():
+                        hg = hjk[x[0]]
+                    else:
                         hg = DataseriesDB.query.filter_by(series=x[0]).first()
-                        if hg is not None:
-                            DataseriesDB.query.filter_by(series=x[0]).first().legions.append(new_vc)
-                            g.write('\n'+'Added new line: '+x[0]+', '+x[1]+', '+x[2])
+                        hjk[x[0]] = hg
+                    if hg is not None:
+                        hg.legions.append(new_vc)
+                        g.write('\n'+'Added new line: '+x[0]+', '+x[1]+', '+x[2])
+                    else:
+                        new_h = DataseriesDB(series=x[0],URLpath=join(mypath,x[0]+'.csv'))
+                        new_h.legions.append(new_vc)
+                        db.session.add(new_h)
+                        g.write('\n'+'Added new line: '+x[0]+', '+x[1]+', '+x[2])
+                elif(appending and checktypes=='man'):
+                    new_vc = Dataentry(date=DateTime(x[1]),value=x[2])
+                    if x[0] in serieslist.keys():
+                        serieslist[x[0]].legions.append(new_vc)
+                        g.write('\n'+'Added new line: '+x[0]+', '+x[1]+', '+x[2])
+                    else:
+                        new_h = Dataseries(id=x[0],legions=[],URLpath=join(mypath,x[0]+'.csv'))
+                        new_h.legions.append(new_vc)
+                        serieslist[x[0]]=new_h
+                        g.write('\n'+'Added new line: '+x[0]+', '+x[1]+', '+x[2])
+                elif(appending and checktypes=='pan'):
+                    if x[0] in serieslist.keys():
+                        df = pd.DataFrame(data=[x])
+                        df.columns = ['Series', 'Date', 'Value']
+                        pandaentries = pd.concat([pandaentries,df])
+                        g.write('\n'+'Added new line: '+x[0]+', '+x[1]+', '+x[2])
+                    else:
+                        df = pd.DataFrame(data=[x])
+                        df.columns = ['Series', 'Date', 'Value']
+                        pandaentries = pd.concat([pandaentries,df])
+                        serieslist[x[0]]=join(mypath,x[0]+'.csv')
+                        g.write('\n'+'Added new line: '+x[0]+', '+x[1]+', '+x[2])
+                if(updating and checktypes!='pan'):
+                    global new_jj
+                    global entries
+                    if(checktypes=='sql'):
+                        new_jj = DataentryDB(date=DateTime(x[1]),value=x[2])
+                        if x[0] in hjk.keys():
+                            hg = hjk[x[0]]
                         else:
-                            new_h = DataseriesDB(series=x[0],URLpath=join(mypath,x[0]+'.csv'))
-                            new_h.legions.append(new_vc)
-                            db.session.add(new_h)
-                            g.write('\n'+'Added new line: '+x[0]+', '+x[1]+', '+x[2])
-                    elif(appending and checktypes=='man'):
-                        new_vc = Dataentry(date=DateTime(x[1]),value=x[2])
-                        if x[0] in serieslist.keys():
-                            serieslist[x[0]].legions.append(new_vc)
-                            g.write('\n'+'Added new line: '+x[0]+', '+x[1]+', '+x[2])
-                        else:
-                            new_h = Dataseries(id=x[0],legions=[],URLpath=join(mypath,x[0]+'.csv'))
-                            new_h.legions.append(new_vc)
-                            serieslist[x[0]]=new_h
-                            g.write('\n'+'Added new line: '+x[0]+', '+x[1]+', '+x[2])
-                    elif(appending and checktypes=='pan'):
-                        if x[0] in pandaseries['Series'].values:
-                            df = pd.DataFrame(data=[x])
-                            df.columns = ['Series', 'Date', 'Value']
-                            pandaentries = pd.concat([pandaentries,df])
-                            g.write('\n'+'Added new line: '+x[0]+', '+x[1]+', '+x[2])
-                        else:
-                            df = pd.DataFrame(data=[x])
-                            df.columns = ['Series', 'Date', 'Value']
-                            pandaentries = pd.concat([pandaentries,df])
-                            ch = pd.DataFrame(data=[[x[0], join(mypath,x[0]+'.csv')]])
-                            ch.columns=['Series','URL']
-                            pandaseries = pd.concat([pandaseries,ch])
-                            g.write('\n'+'Added new line: '+x[0]+', '+x[1]+', '+x[2])
-                    if(updating and checktypes!='pan'):
-                        global new_jj
-                        global entries
-                        if(checktypes=='sql'):
-                            new_jj = DataentryDB(date=DateTime(x[1]),value=x[2])
-                            entries = DataseriesDB.query.filter_by(series=x[0]).first().legions
-                        elif(checktypes=='man'):
-                            new_jj = Dataentry(date=DateTime(x[1]),value=x[2])
-                            entries = serieslist[x[0]].legions
-                        for xx in entries:
-                            if(xx.print() == new_jj.print()):
-                                if(datascrepancy(xx.value,new_jj.value)):
-                                    g.write('\n'+'Data mismatch in: '+x[0]+' '+xx.print()+'. New value ('+str(new_jj.value)+') too different from '+str(xx.value));
-                                else:
-                                    v = xx.value
-                                    xx.value = new_jj.value
-                                    g.write('\n'+'In '+x[0]+' '+xx.print()+' replaced '+str(v)+' with new value: '+ str(new_jj.value));
-                                break
-                    elif(updating and checktypes=='pan'):
-                        if x[0] in pandaseries['Series'].values:
-                            if x[1] in pandaentries['Date'].values:
-                                old_value = str(pandaentries.loc[(pandaentries['Date']==x[1]) & (pandaentries['Series']==x[0]),'Value'].iloc[0])
-                                if(datascrepancy(old_value,x[2])):
-                                    g.write('\n'+'Data mismatch in: '+x[0]+' '+xx.print()+'. New value ('+str(new_jj.value)+') too different from '+str(xx.value));
-                                else:
-                                    pandaentries.loc[(pandaentries['Date']==x[1]) & (pandaentries['Series']==x[0]),'Value'] = x[2]
-                                    g.write('\n'+'In '+x[0]+' '+x[1]+' replaced '+old_value+' with new value: '+ x[2]);
+                            hg = DataseriesDB.query.filter_by(series=x[0]).first()
+                            hjk[x[0]] = hg
+                        entries = hg.legions
+                    elif(checktypes=='man'):
+                        new_jj = Dataentry(date=DateTime(x[1]),value=x[2])
+                        entries = serieslist[x[0]].legions
+                    for xx in entries:
+                        if(xx.print() == new_jj.print()):
+                            if(datascrepancy(xx.value,new_jj.value)):
+                                g.write('\n'+'Data mismatch in: '+x[0]+' '+xx.print()+'. New value ('+str(new_jj.value)+') too different from '+str(xx.value));
+                            else:
+                                v = xx.value
+                                xx.value = new_jj.value
+                                g.write('\n'+'In '+x[0]+' '+xx.print()+' replaced '+str(v)+' with new value: '+ str(new_jj.value));
+                            break
+                elif(updating and checktypes=='pan'):
+                    if x[0] in serieslist.keys():
+                        if x[1] in pandaentries['Date'].values:
+                            old_value = str(pandaentries.loc[(pandaentries['Date']==x[1]) & (pandaentries['Series']==x[0]),'Value'].iloc[0])
+                            if(datascrepancy(old_value,x[2])):
+                                g.write('\n'+'Data mismatch in: '+x[0]+' '+x[1]+'. New value ('+str(new_jj.value)+') too different from '+str(xx.value));
+                            else:
+                                pandaentries.loc[(pandaentries['Date']==x[1]) & (pandaentries['Series']==x[0]),'Value'] = x[2]
+                                g.write('\n'+'In '+x[0]+' '+x[1]+' replaced '+old_value+' with new value: '+ x[2]);
     if(checktypes=='sql'):
         db.session.commit()
-        savetofiles(DataseriesDB.query.all())
+        savetofiles(DataseriesDB.query.filter(DataseriesDB.series.in_(hjk.keys())))
     elif(checktypes=='man'):
         savetofiles(serieslist.values())
     elif(checktypes=='pan'):
-        savetofilespandas(pandaseries,pandaentries)
+        savetofilespandas(pandaentries)
     passed = 0
     if(len(checktypes)>0):
         g.close()
