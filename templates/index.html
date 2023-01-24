@@ -17,7 +17,7 @@ function dochange()
 	}
 }
 </script>
-  <title>Data Series Website</title>
+  <title>Aktualizacja szeregów czasowych</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -61,45 +61,41 @@ function dochange()
 </head>
 <body>
   <div class="container">
-    <h1>My Website</h1>
+    <h1>Aktualizacja szeregów czasowych</h1>
     <form enctype="multipart/form-data" method='post'>
       <div class="form-group">
-        <label for="pattern">Select file:</label>
+        <label for="pattern">Wybierz plik:</label>
         <input accept='.csv' name='myfile' type='file' id="pattern" multiple></input>
         <br>
-        <input type="checkbox" id="dmy" name="default" value="1"> Choose a default file
+        <input type="checkbox" id="dmy" name="default" value="1">Wybierz domyślny plik
       </div>
       <div class="form-group">
-        <label for="manual">Line separating character:</label>
+        <label for="manual">Znak oddzielający w linii:</label>
         <br>
         <input type="text" style="width:8px" id="manual" name="type" maxlength="1">
       </div>
       <div class="form-group">
-        <h3>Methods of actualizing:</h3>
-        <input type="radio" id="oth" name="types" value="sql" {{checkedtypes[0]}}> SQL Database
+        <h3>Metoda aktualizacji:</h3>
+        <input type="radio" id="oth" name="types" value="sql" {{checkedtypes[0]}}> Baza danych SQL
         <br>
-        <input type="radio" id="oth" name="types" value="man" {{checkedtypes[1]}}> Manual
+        <input type="radio" id="oth" name="types" value="man" {{checkedtypes[1]}}> Ręcznie
         <br>
         <input type="radio" id="oth" name="types" value="pan" {{checkedtypes[2]}}> Pandas
       </div>
       <div class="form-group">
-        <h3>Date format:</h3>
-        <input type="radio" id="dmy" name="dateformat" value="dmy" {{checked[0]}}> DMY
-        <br>
-        <input type="radio" id="dmy" name="dateformat" value="ymd" {{checked[1]}}> YMD
-        <br>
-        <input type="radio" id="dmy" name="dateformat" value="mdy" {{checked[2]}}> MDY
+        <h3>Format daty:</h3>
+        <input type="text" style="width:80px" id="dmy" name="dateformat" value={{checked}}>
       </div>
       <div class="form-group">
-        <h3>Modes of actualizing:</h3>
-        <input type="checkbox" id="dmy" name="appending" value="1" {{checked1[0]}}> Appending
-        <input type="checkbox" id="dmy" name="updating" value="1" {{checked1[1]}}> Updating
+        <h3>Tryby aktualizacji bazy danych:</h3>
+        <input type="checkbox" id="dmy" name="appending" value="1" {{checked1[0]}}> Dodawania szeregów
+        <input type="checkbox" id="dmy" name="updating" value="1" {{checked1[1]}}> Aktualizowanie szeregów
       </div>
-  <input type='submit' value='submit' id='submit' />
+  <input type='submit' value='Prześlij' id='submit' />
 </form>
 <br>
 {% if passed > 0 %}
-<h2>Time passed: {{passed}} s</h2>
+<h2>Czas wykonania: {{passed}} s</h2>
 {% endif %}
 </div>
 </body>

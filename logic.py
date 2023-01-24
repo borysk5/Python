@@ -10,8 +10,8 @@ from multiprocessing import Pool
 app = Flask(__name__)
 app.config["DEBUG"] = True
 
-separator="."
-dateformat='ymd'
+separator=","
+dateformat='%Y.%m.%d'
 
 serieslist = dict()
 pandaseries = pd.DataFrame()
@@ -44,21 +44,16 @@ class DataentryDB(db.Model):
     def getdate(self):
         return self.date
     def print(self):
-        return self.date.strftime("%Y.%m.%d")
+        global dateformat
+        return self.date.strftime(dateformat)
 
 def DateTime(date):
-    global separator
     date_string =date.strip()
     x = date.split('.')
     assert(len(x)==3)
     global dateformat
-    if(dateformat == 'dmy'):
-        z = datetime.strptime(date_string, "%d"+separator+"%m"+separator+"%Y")
-        return z
-    elif(dateformat == 'ymd'):
-        return datetime.strptime(date_string, "%Y"+separator+"%m"+separator+"%d")
-    elif(dateformat == 'mdy'):
-        return datetime.strptime(date_string, "%m"+separator+"%d"+separator+"%Y")
+    z = datetime.strptime(date_string, dateformat)
+    return z
 
 
 def readfromfolder(path):
@@ -66,7 +61,7 @@ def readfromfolder(path):
 	for i in onlyfiles:
 		if i.endswith(".csv"):
 		    with open(join(path,i)) as csv_file:
-		        csv_reader = csv.reader(csv_file, delimiter=',')
+		        csv_reader = csv.reader(csv_file, delimiter=separator)
 		        bdb = []
 		        l = ''
 		        for row in csv_reader:
@@ -105,7 +100,7 @@ def readfromfolderog(path):
 	for i in onlyfiles:
 		if i.endswith(".csv"):
 		    with open(join(path,i)) as csv_file:
-		        csv_reader = csv.reader(csv_file, delimiter=',')
+		        csv_reader = csv.reader(csv_file, delimiter=separator)
 		        bdb = []
 		        l = ''
 		        for row in csv_reader:

@@ -3,6 +3,7 @@ from datetime import datetime
 from os.path import join
 import io
 from logic import csv, pd, DataseriesDB, DataentryDB, readfromfolderpandas, savetofilespandas, savetofiles, Dataentry, Dataseries, app, db, datascrepancy, readfromfolder, DateTime, readfromfolderog, serieslist
+import logic
 import time
 
 @app.route("/log")
@@ -15,14 +16,13 @@ def log():
         myline = f.readline()
     return page
 
-
 @app.route("/initialize")
 def initialize():
     db.create_all()
     DataentryDB.query.delete()
     DataseriesDB.query.delete()
     db.session.commit()
-    page="DONE"
+    page="WYKONANE"
     mypath = "mysite/dataseries"
     readfromfolder(mypath)
     return page
@@ -41,23 +41,20 @@ def data(id):
 @app.route("/serwer", methods=['GET','POST'])
 def main():
     args = request.form
-    global separator
-    if (not args.get("automat")) and args.get("type"):
-        separator = args.get("type")
+    if args.get("type"):
+        logic.separator = args.get("type")
+    else:
+        logic.separator = ','
     appending = bool(0)
     updating = bool(0)
-    dateformat = "dmy"
     if "dateformat" in args:
-        dateformat = args.get("dateformat")
+        logic.dateformat = args.get("dateformat")
     if args.get("appending"):
         appending = bool(1)
     if args.get("updating"):
         updating = bool(1)
     mypath = "mysite/dataseries"
-    checked = ['','','','']
-    if(dateformat=="dmy"):checked[0]='checked'
-    elif(dateformat=="ymd"):checked[1]='checked'
-    elif(dateformat=="mdy"):checked[2]='checked'
+    checked=logic.dateformat
     checked1 = ['','']
     if appending: checked1[0]='checked'
     if updating: checked1[1]='checked'
@@ -89,9 +86,9 @@ def main():
     start = time.time()
     for f in files:
         if(args.get("default")):
-            csv_reader = csv.reader(f,delimiter=',')
+            csv_reader = csv.reader(f,delimiter=logic.separator)
         else:
-            csv_reader = csv.reader(io.StringIO(f.decode('utf-8')), delimiter=',')
+            csv_reader = csv.reader(io.StringIO(f.decode('utf-8')), delimiter=logic.separator)
         for x in csv_reader:
             if(len(x)!=3):
                 g.write('\n'+'Data mismatch. Wrong format of data series in line: "'+x+'"');
