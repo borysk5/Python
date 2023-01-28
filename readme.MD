@@ -23,3 +23,4 @@ SQLALCHEMY_DATABASE_URI = "postgresql://{username}:{password}@{hostname}/{databa
     hostname="",
     databasename="",
 )
+Po uruchomieniu aplikacji należy wejść na http://localhost:5000/initialize w celu inicjalizacji bazy danych
