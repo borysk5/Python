@@ -4,9 +4,10 @@ Uruchamianie aplikacji do aktualizacji bazy danych szeregów czasowych na własn
 3. W linii komend systemu Windows przejść do folderu gdzie znajduje się plik flask_app.py
 4. Utworzyć w tym folderze podfolder venv
 5. Wpisać komendę "python -m venv venv"
-6. Wpisać komendę "pip install -r requirements.txt"
-7. Wpisać komendę "python -m flask --app flask_app run"
-8. Serwer można używać poprzez wejście na http://localhost:5000/serwer na przeglądarce
+6. Wpisać komendę "venv/Scripts/activate"
+7. Wpisać komendę "pip install -r requirements.txt"
+8. Wpisać komendę "python -m flask --app flask_app run"
+9. Serwer można używać poprzez wejście na http://localhost:5000/serwer na przeglądarce
 
 Ustawianie połączenie z bazą danych w SQL:
 W celu używa opcji korzystania z bazy danych SQL nalezy ustawić w pliku logic.py odpowiednie połączenie.
