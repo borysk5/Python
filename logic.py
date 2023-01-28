@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 import csv
 import pandas as pd
 from multiprocessing import Pool
+import psycopg2
 
 app = Flask(__name__)
 app.config["DEBUG"] = True
