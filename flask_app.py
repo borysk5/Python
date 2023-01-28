@@ -8,7 +8,7 @@ import time
 
 @app.route("/log")
 def log():
-    f = open("mysite/dataseries/log.txt", "r")
+    f = open("dataseries/log.txt", "r")
     page= ""
     myline = f.readline()
     while(myline):
@@ -23,7 +23,7 @@ def initialize():
     DataseriesDB.query.delete()
     db.session.commit()
     page="WYKONANE"
-    mypath = "mysite/dataseries"
+    mypath = "dataseries"
     readfromfolder(mypath)
     return page
 
@@ -53,7 +53,7 @@ def main():
         appending = bool(1)
     if args.get("updating"):
         updating = bool(1)
-    mypath = "mysite/dataseries"
+    mypath = "dataseries"
     checked=logic.dateformat
     checked1 = ['','']
     if appending: checked1[0]='checked'
@@ -76,11 +76,11 @@ def main():
 
     files = []
     if(args.get("default")):
-        files.append(open("mysite/insert.csv"))
+        files.append(open("insert.csv"))
     elif(len(request.files)>0):
         files = request.files['myfile']
     hjk = dict()
-    g = open("mysite/dataseries/log.txt", "a")
+    g = open("dataseries/log.txt", "a")
     g.write('\n'+str(datetime.now()))
     global start
     start = time.time()
