@@ -17,10 +17,12 @@ Przykładowo jeśli chcemy połączyć się z bazą danych PostgreSQL należy:
 1. Pobrać PostgreSQL razem z pgAdmin4
 2. Uworzyć własny serwer z bazą danych.
 3. W pliku logic.py zaktualizować SQLALCHEMY_DATABASE_URI odpowiednią nazwą użytkownika, hasłem, nazwą hosta i bazy danych:
+
 SQLALCHEMY_DATABASE_URI = "postgresql://{username}:{password}@{hostname}/{databasename}".format(
     username="",
     password="",
     hostname="",
     databasename="",
 )
+
 Po uruchomieniu aplikacji należy wejść na http://localhost:5000/initialize w celu inicjalizacji bazy danych
