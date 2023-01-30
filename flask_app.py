@@ -62,10 +62,10 @@ def main():
     if "types" in args:
         checktypes = args.get("types")
         assert checktypes=='sql' or checktypes=='man' or checktypes=='pan'
-    checkedtypes = ['','','']
-    if(checktypes=="sql"): checkedtypes[0]='checked'
-    elif(checktypes=="man"): checkedtypes[1]='checked'
-    elif(checktypes=="pan"): checkedtypes[2]='checked'
+    checkedtypes = ['','checked','']
+    if(checktypes=="sql"): checkedtypes = ['checked','','']
+    elif(checktypes=="man"): checkedtypes = ['','checked','']
+    elif(checktypes=="pan"): checkedtypes = ['','','checked']
     global pandaseries
     global pandaentries
     if(checktypes=='man'):
