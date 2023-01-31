@@ -15,6 +15,7 @@ separator=","
 dateformat='%Y.%m.%d'
 
 serieslist = dict()
+URLlist = dict()
 pandaseries = pd.DataFrame()
 
 SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
@@ -90,7 +91,7 @@ def readfromfolderpandas(path):
 		    df.columns = ['Series', 'Date', 'Value']
 		    pandasframe = pd.concat([pandasframe,df])
 		    nazwa = df['Series'].iloc[0]
-		    serieslist[nazwa]=join(path,i)
+		    URLlist[nazwa]=join(path,i)
 	onlyfolders = [f for f in listdir(path) if isdir(join(path, f))]
 	for j in onlyfolders:
 		readfromfolderpandas(join(path,j))
@@ -140,7 +141,7 @@ def savelinepandas(x,url):
 def savetofilespandas(arg1):
     dfs = arg1.groupby('Series')
     for x in dfs:
-        url = serieslist[x[0]]
+        url = URLlist[x[0]]
         savelinepandas(x[1],url)
 
 class Dataseries:
