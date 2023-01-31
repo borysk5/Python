@@ -163,7 +163,7 @@ def main():
                         if x[1] in pandaentries['Date'].values:
                             old_value = str(pandaentries.loc[(pandaentries['Date']==x[1]) & (pandaentries['Series']==x[0]),'Value'].iloc[0])
                             if(datascrepancy(old_value,x[2])):
-                                g.write('\n'+'Data mismatch in: '+x[0]+' '+x[1]+'. New value ('+str(new_jj.value)+') too different from '+str(xx.value));
+                                g.write('\n'+'Data mismatch in: '+x[0]+' '+x[1]+'. New value ('+str(x[2])+') too different from '+str(old_value));
                             else:
                                 pandaentries.loc[(pandaentries['Date']==x[1]) & (pandaentries['Series']==x[0]),'Value'] = x[2]
                                 g.write('\n'+'In '+x[0]+' '+x[1]+' replaced '+old_value+' with new value: '+ x[2]);
