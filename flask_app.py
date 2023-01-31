@@ -2,7 +2,7 @@ from flask import request, render_template
 from datetime import datetime
 from os.path import join
 import io
-from logic import csv, pd, DataseriesDB, DataentryDB, readfromfolderpandas, savetofilespandas, savetofiles, Dataentry, Dataseries, app, db, datascrepancy, readfromfolder, DateTime, readfromfolderog, serieslist
+from logic import csv, pd, DataseriesDB, DataentryDB, readfromfolderpandas, savetofilespandas, savetofiles, Dataentry, Dataseries, app, db, datascrepancy, readfromfolder, DateTime, readfromfolderog, serieslist,URLlist
 import logic
 import time
 
@@ -122,7 +122,7 @@ def main():
                         serieslist[x[0]]=new_h
                         g.write('\n'+'Added new line: '+x[0]+', '+x[1]+', '+x[2])
                 elif(appending and checktypes=='pan'):
-                    if x[0] in serieslist.keys():
+                    if x[0] in URLlist.keys():
                         df = pd.DataFrame(data=[x])
                         df.columns = ['Series', 'Date', 'Value']
                         pandaentries = pd.concat([pandaentries,df])
@@ -131,7 +131,7 @@ def main():
                         df = pd.DataFrame(data=[x])
                         df.columns = ['Series', 'Date', 'Value']
                         pandaentries = pd.concat([pandaentries,df])
-                        serieslist[x[0]]=join(mypath,x[0]+'.csv')
+                        URLlist[x[0]]=join(mypath,x[0]+'.csv')
                         g.write('\n'+'Added new line: '+x[0]+', '+x[1]+', '+x[2])
                 if(updating and checktypes!='pan'):
                     global new_jj
@@ -157,7 +157,7 @@ def main():
                                 g.write('\n'+'In '+x[0]+' '+xx.print()+' replaced '+str(v)+' with new value: '+ str(new_jj.value));
                             break
                 elif(updating and checktypes=='pan'):
-                    if x[0] in serieslist.keys():
+                    if x[0] in URLlist.keys():
                         if x[1] in pandaentries['Date'].values:
                             old_value = str(pandaentries.loc[(pandaentries['Date']==x[1]) & (pandaentries['Series']==x[0]),'Value'].iloc[0])
                             if(datascrepancy(old_value,x[2])):
