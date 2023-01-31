@@ -69,8 +69,10 @@ def main():
     global pandaseries
     global pandaentries
     if(checktypes=='man'):
+        serieslist.clear()
         readfromfolderog(mypath)
     elif(checktypes=='pan'):
+        URLlist.clear()
         xj = readfromfolderpandas(mypath)
         pandaentries = xj
 
@@ -172,7 +174,7 @@ def main():
         savetofiles(serieslist.values())
     elif(checktypes=='pan'):
         savetofilespandas(pandaentries)
-    passed = 0
+    passed = -1
     if(len(checktypes)>0):
         g.close()
         end = time.time()
