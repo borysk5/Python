@@ -103,13 +103,13 @@ def readfromfolderog(path):
 		if i.endswith(".csv"):
 		    with open(join(path,i)) as csv_file:
 		        csv_reader = csv.reader(csv_file, delimiter=separator)
-		        bdb = []
+		        bdb = dict()
 		        l = ''
 		        for row in csv_reader:
 		            if(len(row))==3:
 		                l = row[0]
 		                entry = Dataentry(date=DateTime(row[1]),value=row[2])
-		                bdb.append(entry)
+		                bdb[row[1]] = entry
 		        seria = Dataseries(legions=bdb,id=l,URLpath=join(path,i))
 		        global serieslist
 		        serieslist[l]=seria
@@ -125,10 +125,11 @@ def datascrepancy(x, y):
 
 def saveline(i):
     g = open(i.URLpath, "w")
-    g.write(i.series+','+i.legions[0].print()+','+str(i.legions[0].value))
-    if(len(i.legions)>1):
-        for j in i.legions[1:]:
-            g.write('\n'+i.series+','+j.print()+','+str(j.value))
+    myKeys = list(i.legions.keys())
+    myKeys.sort()
+    sorted_dict = {k: i.legions[k] for k in myKeys}
+    for j in sorted_dict:
+        g.write(i.series+','+i.legions[j].print()+','+str(i.legions[j].value)+'\n')
     g.close()
 
 def savetofiles(zxh):
@@ -136,7 +137,7 @@ def savetofiles(zxh):
         pool.map(saveline,zxh)
 
 def savelinepandas(x,url):
-        x.to_csv(url,header=False,index=False)
+        x.sort_values('Date').to_csv(url,header=False,index=False)
 
 def savetofilespandas(arg1):
     dfs = arg1.groupby('Series')
@@ -155,4 +156,4 @@ class Dataentry:
     self.date = date
     self.value = value
   def print(self):
-    return self.date.strftime("%Y.%m.%d")
+    return self.date.strftime(dateformat)
