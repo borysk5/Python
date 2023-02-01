@@ -127,8 +127,7 @@ def saveline(i):
     g = open(i.URLpath, "w")
     myKeys = list(i.legions.keys())
     myKeys.sort()
-    sorted_dict = {k: i.legions[k] for k in myKeys}
-    for j in sorted_dict:
+    for j in myKeys:
         g.write(i.series+','+i.legions[j].print()+','+str(i.legions[j].value)+'\n')
     g.close()
 
