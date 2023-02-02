@@ -136,11 +136,14 @@ def savetofiles(zxh):
     for i in zxh:
         saveline(i,dateformat)
 
+def format_date(date,format):
+    return datetime.strptime(date,format)
+
 def savetofilespandas(arg1):
     dfs = arg1.groupby('Series')
     for x in dfs:
         url = URLlist[x[0]]
-        x[1].sort_values('Date').to_csv(url,header=False,index=False)
+        x[1].sort_values(by='Date',key=lambda y: y.apply(format_date,format=dateformat)).to_csv(url,header=False,index=False)
 
 class Dataseries:
   def __init__(self, id, legions, URLpath):
