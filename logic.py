@@ -140,7 +140,7 @@ def savetofilespandas(arg1):
     dfs = arg1.groupby('Series')
     for x in dfs:
         url = URLlist[x[0]]
-        x.sort_values('Date',key=lambda x: datetime.strptime(x,dateformat)).to_csv(url,header=False,index=False)
+        x[1].sort_values('Date').to_csv(url,header=False,index=False)
 
 class Dataseries:
   def __init__(self, id, legions, URLpath):
