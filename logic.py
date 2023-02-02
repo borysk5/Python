@@ -136,6 +136,15 @@ def savetofiles(zxh):
     for i in zxh:
         saveline(i,dateformat)
 
+def savetofilessql(zxh):
+    for i in zxh:
+        g = open(i.URLpath, "w")
+        myKeys = list(i.legions.keys())
+        myKeys.sort(key=lambda date: date.isoformat())
+        for j in myKeys:
+            g.write(i.series+','+i.legions[j].print()+','+str(i.legions[j].value)+'\n')
+        g.close()
+
 def format_date(date,format):
     return datetime.strptime(date,format)
 
