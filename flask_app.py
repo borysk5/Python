@@ -114,7 +114,7 @@ def main():
                         db.session.add(new_h)
                         g.write('\n'+'Added new line: '+x[0]+', '+x[1]+', '+x[2])
                 if(checktypes=='man'):
-                    new_vc = Dataentry(date=DateTime(x[1]),value=x[2])
+                    new_jj = Dataentry(date=DateTime(x[1]),value=x[2])
                     if x[0] in serieslist.keys():
                         if x[1] in serieslist[x[0]].legions.keys():
                             if updating:
@@ -130,7 +130,7 @@ def main():
                             g.write('\n'+'Added new line: '+x[0]+', '+x[1]+', '+x[2])
                     elif appending:
                         new_h = Dataseries(id=x[0],legions=dict(),URLpath=join(mypath,x[0]+'.csv'))
-                        new_h.legions[x[1]] = new_vc
+                        new_h.legions[x[1]] = new_jj
                         serieslist[x[0]]=new_h
                         g.write('\n'+'Added new line: '+x[0]+', '+x[1]+', '+x[2])
 
