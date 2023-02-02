@@ -2,7 +2,7 @@ from flask import request, render_template
 from datetime import datetime
 from os.path import join
 import io
-from logic import csv, pd, DataseriesDB, DataentryDB, readfromfolderpandas, savetofilespandas, savetofiles, Dataentry, Dataseries, app, db, datascrepancy, readfromfolder, DateTime, readfromfolderog, serieslist,URLlist
+from logic import csv, pd, DataseriesDB, DataentryDB, readfromfolderpandas, savetofilespandas, savetofiles, savetofilessql, Dataentry, Dataseries, app, db, datascrepancy, readfromfolder, DateTime, readfromfolderog, serieslist,URLlist
 import logic
 import time
 
@@ -171,7 +171,7 @@ def main():
                 
     if(checktypes=='sql'):
         db.session.commit()
-        savetofiles(DataseriesDB.query.filter(DataseriesDB.series.in_(hjk.keys())))
+        savetofilessql(DataseriesDB.query.filter(DataseriesDB.series.in_(hjk.keys())))
     elif(checktypes=='man'):
         savetofiles(serieslist.values())
     elif(checktypes=='pan'):
