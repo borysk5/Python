@@ -114,7 +114,7 @@ def main():
                         db.session.add(new_h)
                         g.write('\n'+'Added new line: '+x[0]+', '+x[1]+', '+x[2])
                 if(checktypes=='man'):
-                    new_jj = Dataentry(date=DateTime(x[1]),value=x[2])
+                    new_vc = Dataentry(date=DateTime(x[1]),value=x[2])
                     if x[0] in serieslist.keys():
                         if x[1] in serieslist[x[0]].legions.keys():
                             if updating:
