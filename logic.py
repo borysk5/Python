@@ -3,6 +3,7 @@ from datetime import datetime
 from os import listdir
 from os.path import isfile, join, isdir
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm.collections import attribute_mapped_collection
 import csv
 import pandas as pd
 from multiprocessing import Pool
@@ -35,7 +36,7 @@ class DataseriesDB(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     series = db.Column(db.String(4096))
     URLpath = db.Column(db.String(4096))
-    legions = db.relationship("DataentryDB",backref="legion",lazy='subquery')
+    legions = db.relationship("DataentryDB",collection_class=attribute_mapped_collection("date"),backref="legion",lazy='subquery')
 
 class DataentryDB(db.Model):
     __tablename__ = "legions"
@@ -64,13 +65,13 @@ def readfromfolder(path):
 		if i.endswith(".csv"):
 		    with open(join(path,i)) as csv_file:
 		        csv_reader = csv.reader(csv_file, delimiter=separator)
-		        bdb = []
+		        bdb = dict()
 		        l = ''
 		        for row in csv_reader:
 		            if(len(row))==3:
 		                l = row[0]
 		                series = DataentryDB(date=DateTime(row[1]),value=row[2])
-		                bdb.append(series)
+		                bdb[row[1]]=series
 		        seria = DataseriesDB(series=l,URLpath=join(path,i))
 		        seria.legions = bdb
 		        db.session.add(seria)
