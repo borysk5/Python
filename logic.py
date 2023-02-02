@@ -98,6 +98,7 @@ def readfromfolderpandas(path):
 	return pandasframe
 
 def readfromfolderog(path):
+	print(dateformat)
 	onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
 	for i in onlyfiles:
 		if i.endswith(".csv"):
@@ -123,26 +124,23 @@ def datascrepancy(x, y):
 	if(abs(x-y)/x < 0.2): return bool(0)
 	else: return bool(1)
 
-def saveline(i):
+def saveline(i,format):
     g = open(i.URLpath, "w")
     myKeys = list(i.legions.keys())
-    myKeys.sort()
+    myKeys.sort(key=lambda date: datetime.strptime(date,format))
     for j in myKeys:
         g.write(i.series+','+i.legions[j].print()+','+str(i.legions[j].value)+'\n')
     g.close()
 
 def savetofiles(zxh):
-    with Pool() as pool:
-        pool.map(saveline,zxh)
-
-def savelinepandas(x,url):
-        x.sort_values('Date').to_csv(url,header=False,index=False)
+    for i in zxh:
+        saveline(i,dateformat)
 
 def savetofilespandas(arg1):
     dfs = arg1.groupby('Series')
     for x in dfs:
         url = URLlist[x[0]]
-        savelinepandas(x[1],url)
+        x.sort_values('Date',key=lambda x: datetime.strptime(x,dateformat)).to_csv(url,header=False,index=False)
 
 class Dataseries:
   def __init__(self, id, legions, URLpath):
