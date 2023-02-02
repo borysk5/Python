@@ -98,7 +98,6 @@ def readfromfolderpandas(path):
 	return pandasframe
 
 def readfromfolderog(path):
-	print(dateformat)
 	onlyfiles = [f for f in listdir(path) if isfile(join(path, f))]
 	for i in onlyfiles:
 		if i.endswith(".csv"):
