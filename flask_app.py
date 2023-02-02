@@ -98,21 +98,32 @@ def main():
                 x[1] = x[1].strip()
                 x[0] = x[0].strip()
                 x[2] = x[2].strip()
-                if(appending and checktypes=='sql'):
+                if(checktypes=='sql'):
                     new_vc = DataentryDB(date=DateTime(x[1]),value=x[2])
                     if x[0] in hjk.keys():
                         hg = hjk[x[0]]
-                    else:
+                    elif DataseriesDB.query.filter_by(series=x[0]).count() > 0:
                         hg = DataseriesDB.query.filter_by(series=x[0]).first()
                         hjk[x[0]] = hg
                     if hg is not None:
-                        hg.legions.append(new_vc)
-                        g.write('\n'+'Added new line: '+x[0]+', '+x[1]+', '+x[2])
-                    else:
+                        if x[1] in hg.legions.keys():
+                            if updating:
+                                xx = hg.legions[x[1]]
+                                if(datascrepancy(xx.value,new_vc.value)):
+                                    g.write('\n'+'Data mismatch in: '+x[0]+' '+xx.print()+'. New value ('+str(new_vc.value)+') too different from '+str(xx.value));
+                                else:
+                                    v = xx.value
+                                    xx.value = new_vc.value
+                                    g.write('\n'+'In '+x[0]+' '+xx.print()+' replaced '+str(v)+' with new value: '+ str(new_vc.value));
+                        elif appending:
+                            hg.legions[x[1]] = new_vc
+                            g.write('\n'+'Added new line: '+x[0]+', '+x[1]+', '+x[2])
+                    elif appending:
                         new_h = DataseriesDB(series=x[0],URLpath=join(mypath,x[0]+'.csv'))
                         new_h.legions.append(new_vc)
                         db.session.add(new_h)
                         g.write('\n'+'Added new line: '+x[0]+', '+x[1]+', '+x[2])
+
                 if(checktypes=='man'):
                     new_jj = Dataentry(date=DateTime(x[1]),value=x[2])
                     if x[0] in serieslist.keys():
@@ -157,23 +168,7 @@ def main():
                         pandaentries = pd.concat([pandaentries,df])
                         URLlist[x[0]]=join(mypath,x[0]+'.csv')
                         g.write('\n'+'Added new line: '+x[0]+', '+x[1]+', '+x[2])
-                if(updating and checktypes=='sql'):
-                    new_jj = DataentryDB(date=DateTime(x[1]),value=x[2])
-                    if x[0] in hjk.keys():
-                        hg = hjk[x[0]]
-                    else:
-                        hg = DataseriesDB.query.filter_by(series=x[0]).first()
-                        hjk[x[0]] = hg
-                    entries = hg.legions
-                    for xx in entries:
-                        if(xx.print() == new_jj.print()):
-                            if(datascrepancy(xx.value,new_jj.value)):
-                                g.write('\n'+'Data mismatch in: '+x[0]+' '+xx.print()+'. New value ('+str(new_jj.value)+') too different from '+str(xx.value));
-                            else:
-                                v = xx.value
-                                xx.value = new_jj.value
-                                g.write('\n'+'In '+x[0]+' '+xx.print()+' replaced '+str(v)+' with new value: '+ str(new_jj.value));
-                            break
+                
     if(checktypes=='sql'):
         db.session.commit()
         savetofiles(DataseriesDB.query.filter(DataseriesDB.series.in_(hjk.keys())))
