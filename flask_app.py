@@ -99,7 +99,12 @@ def main():
                 x[0] = x[0].strip()
                 x[2] = x[2].strip()
                 if(checktypes=='sql'):
-                    new_vc = DataentryDB(date=DateTime(x[1]),value=x[2])
+                    try:
+                    	new_vc = Dataentry(date=DateTime(x[1]),value=x[2])
+                    except ValueError:
+                    	g.write('\n'+'Format error:'+x[1])
+                    	break;
+                    hg = None			
                     if x[0] in hjk.keys():
                         hg = hjk[x[0]]
                     elif DataseriesDB.query.filter_by(series=x[0]).count() > 0:
@@ -120,12 +125,17 @@ def main():
                             g.write('\n'+'Added new line: '+x[0]+', '+x[1]+', '+x[2])
                     elif appending:
                         new_h = DataseriesDB(series=x[0],URLpath=join(mypath,x[0]+'.csv'))
-                        new_h.legions.append(new_vc)
+                        new_h.legions = dict()
+                        new_h.legions[x[1]]=new_vc
                         db.session.add(new_h)
                         g.write('\n'+'Added new line: '+x[0]+', '+x[1]+', '+x[2])
 
                 if(checktypes=='man'):
-                    new_jj = Dataentry(date=DateTime(x[1]),value=x[2])
+                    try:
+                    	new_jj = Dataentry(date=DateTime(x[1]),value=x[2])
+                    except ValueError:
+                    	g.write('\n'+'Format error:'+x[1])
+                    	break;
                     if x[0] in serieslist.keys():
                         if x[1] in serieslist[x[0]].legions.keys():
                             if updating:
@@ -146,7 +156,11 @@ def main():
                         g.write('\n'+'Added new line: '+x[0]+', '+x[1]+', '+x[2])
 
                 if(checktypes=='pan'):
-                    new_jj = Dataentry(date=DateTime(x[1]),value=x[2])
+                    try:
+                    	new_jj = Dataentry(date=DateTime(x[1]),value=x[2])
+                    except ValueError:
+                    	g.write('\n'+'Format error:'+x[1])
+                    	break;
                     if x[0] in URLlist.keys():
                         temp = pandaentries.loc[pandaentries['Series']==x[0]]
                         if x[1] in temp['Date'].values:
