@@ -19,11 +19,11 @@ serieslist = dict()
 URLlist = dict()
 pandaseries = pd.DataFrame()
 
-SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://{username}:{password}@{hostname}/{databasename}".format(
-    username="Borysk5",
-    password="SQLPassword",
-    hostname="Borysk5.mysql.eu.pythonanywhere-services.com",
-    databasename="Borysk5$MyDatabase",
+SQLALCHEMY_DATABASE_URI = "postgresql://{username}:{password}@{hostname}/{databasename}".format(
+    username="postgres",
+    password="password",
+    hostname="localhost",
+    databasename="postgres",
 )
 app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
 app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
@@ -70,8 +70,11 @@ def readfromfolder(path):
 		        for row in csv_reader:
 		            if(len(row))==3:
 		                l = row[0]
-		                series = DataentryDB(date=DateTime(row[1]),value=row[2])
-		                bdb[row[1]]=series
+		                try:
+		                	series = DataentryDB(date=DateTime(row[1]),value=row[2])
+		                	bdb[row[1]]=series
+		                except ValueError:
+		                	continue
 		        seria = DataseriesDB(series=l,URLpath=join(path,i))
 		        seria.legions = bdb
 		        db.session.add(seria)
@@ -109,8 +112,11 @@ def readfromfolderog(path):
 		        for row in csv_reader:
 		            if(len(row))==3:
 		                l = row[0]
-		                entry = Dataentry(date=DateTime(row[1]),value=row[2])
-		                bdb[row[1]] = entry
+		                try:
+		                	entry = Dataentry(date=DateTime(row[1]),value=row[2])
+		                	bdb[row[1]] = entry
+		                except ValueError:
+		                	continue
 		        seria = Dataseries(legions=bdb,id=l,URLpath=join(path,i))
 		        global serieslist
 		        serieslist[l]=seria
